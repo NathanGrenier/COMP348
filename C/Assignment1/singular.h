@@ -1,7 +1,6 @@
 #pragma once
-#include <stdlib.h>
 
-enum filter_type { EQ = 0, NEQ = 1, GEQ = 2, LEQ = 3, LESS = 4, GREATER = 5 } t;
+enum filter_type { EQ = 0, NEQ = 1, GEQ = 2, LEQ = 3, LESS = 4, GREATER = 5 } extern t;
 
 void print(double a[], size_t size);
 void shift(double a[], size_t size, double by);
