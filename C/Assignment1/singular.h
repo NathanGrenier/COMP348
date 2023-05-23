@@ -1,6 +1,9 @@
 #pragma once
 
-enum filter_type { EQ = 0, NEQ = 1, GEQ = 2, LEQ = 3, LESS = 4, GREATER = 5 } extern t;
+enum filter_type { EQ = 0, NEQ = 1, GEQ = 2, LEQ = 3, LESS = 4, GREATER = 5 };
+extern char *filter_types[];
+extern int output_size;
+extern int output_prec;
 
 void print(double a[], size_t size);
 void shift(double a[], size_t size, double by);

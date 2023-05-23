@@ -30,7 +30,7 @@ static double _max(double* arr, int size) {
 }
 
 static double _sum(double* arr, int size) {
-    double sum;
+    double sum = 0;
     for (int i=0; i < size; i++) {
         sum += arr[i];
     }
@@ -57,14 +57,8 @@ double aggregate(const char* func, double* arr, int size) {
         exit(1);
     }
 
-    // Convert passed function name to uppercase
-    char funcname[LENGTH(func)];
-    for (int i=0; i < LENGTH(funcname); i++) {
-        funcname[i] = toupper(func[i]);
-    }
-
     for (int i=0; i < LENGTH(funcnames); i++) {
-        if (strcmp(funcname, funcnames[i]) == 0) {
+        if (strcmp(func, funcnames[i]) == 0) {
             return (*farray[i])(arr, size);
         }
     }
