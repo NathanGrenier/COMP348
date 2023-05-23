@@ -10,6 +10,7 @@ static double _count(double* arr, int size) {
 }
 
 static double _min(double* arr, int size) {
+    // if (size == 0 || arr == NULL) {return;}
     double min = arr[0];
     for (int i=1; i < size; i++) {
         if (arr[i] < min) {
@@ -45,9 +46,9 @@ static double _pavg(double* arr, int size) {
     return (_min(arr, size) + _max(arr, size)) / 2;
 }
 
-
 // The following declares an array of pointer
-static double (*farray[6])(double*, int) = {&_count, &_min, &_max, &_sum, &_avg, &_pavg};
+typedef double (*aggregate_func[])(double*, int);
+aggregate_func farray = {&_count, &_min, &_max, &_sum, &_avg, &_pavg};
 // The following declares an array of strings
 static const char* funcnames[] = {"COUNT", "MIN", "MAX", "SUM", "AVG", "PAVG"};
 
@@ -63,7 +64,7 @@ double aggregate(const char* func, double* arr, int size) {
         }
     }
     
-    // No aggregate function was with that name, diplay an error
+    // No aggregate function with that name was found, diplay an error
     fprintf (stderr, "Fatal Error: no function with the name %s was found, in file: %s, on line: %d.\n", func, __FILE__, __LINE__);
     exit(1);
 }

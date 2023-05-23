@@ -9,8 +9,8 @@
 #define MAX_CHAR 2048   // Safe estimate of max buffer size
 #define LENGTH(x) (sizeof(x)/sizeof(x[0]))
 
-int output_size = 3;   // Print 3 digits by default
-int output_prec = 1;   // Print 1 digits after the decimal by default
+int max_array_size = MAX_COL;
+int output_prec = -1;   // Default is -1. Means no precision is specified
 
 void setFinalCommand(char *finalCommand, char *command, int size) {
     finalCommand = realloc(finalCommand, size * sizeof(char));
@@ -68,58 +68,6 @@ void strToUpper(char* str) {
 }
 
 int main(int argc, char *argv[])  {
-    /* ----- Dynamically allocate the contents of stdin to a 2d array ----- */
-    char input[MAX_CHAR];
-    char delimiter[] = " \n";
-    double **arr = (double **)malloc(1 * sizeof(double *));
-    int *sizes = (int *)malloc(1 * sizeof(int));
-    double *innerArr;
-
-    int row = 0;
-    while (fgets(input, sizeof(input), stdin) != NULL) {
-        if (strcmp(input, "\n") == 0) {continue;}
-        innerArr = (double *)malloc(MAX_COL * sizeof(double));
-        if (innerArr == NULL) {
-            printf("Failed to allocate memory for the array.\n");
-            return 1;
-        }
-
-        int col = 0;
-        double scanned;
-        char* token = strtok(input, delimiter);
-        while (token != NULL) {
-            if (col == 256) {
-                arr[row] = innerArr;
-                sizes[row] = col;  
-                row++;
-                sizes = (int *)realloc(sizes, (row + 1) * sizeof(int));
-                arr = (double **)realloc(arr, (row + 1) * sizeof(double *));
-                col = 0;
-                innerArr = (double *)malloc(MAX_COL * sizeof(double));
-                if (innerArr == NULL) {
-                    printf("Failed to allocate memory for the array.\n");
-                    return 1;
-                }
-            }
-            sscanf(token, "%lf", &scanned);
-            innerArr[col] = scanned;
-            col++;
-
-            token = strtok(NULL, delimiter);
-        }
-
-        innerArr = (double *)realloc(innerArr, (col) * sizeof(double));
-        if (innerArr == NULL) {
-            printf("Failed to reallocate memory for the array.\n");
-            return 1;
-        }
-        arr[row] = innerArr;
-        sizes[row] = col;  
-        row++;
-        sizes = (int *)realloc(sizes, (row + 1) * sizeof(int));
-        arr = (double **)realloc(arr, (row + 1) * sizeof(double *));
-    }
-
     /* ----- Parse the command line arguments ----- */
 
     //const enum commands {COUNT, MIN, MAX, SUM, AVG, PAVG, PRINT, FILTER, SHIFT} command;
@@ -139,15 +87,19 @@ int main(int argc, char *argv[])  {
             if (strcmp(argument, "-size") == 0) {
                 char *size_str = strtok(NULL, "=");
                 if (size_str == NULL || !isInt(size_str)) {
-                    fprintf(stderr, "Error: size=%s is not an int. in file: %s, on line: %d.\n", size_str, __FILE__ ,__LINE__);
+                    fprintf(stderr, "Error: -size=%s is not an int. in file: %s, on line: %d.\n", size_str, __FILE__ ,__LINE__);
                     exit(1);
                 }
                 char* endptr;
-                output_size = strtol(size_str, &endptr, 10);
+                max_array_size = strtol(size_str, &endptr, 10);
+                if (max_array_size <= 0) {
+                    fprintf(stderr, "Error: -size=%d must be greater than 0. in file: %s, on line: %d.\n", max_array_size, __FILE__ ,__LINE__);
+                    exit(1);
+                }
             } else if (strcmp(argument, "-prec") == 0) {
                 char *prec_str = strtok(NULL, "=");
                 if (prec_str == NULL || !isInt(prec_str)) {
-                    fprintf(stderr, "Error: prec=%s is not an int. in file: %s, on line: %d.\n", prec_str, __FILE__ ,__LINE__);
+                    fprintf(stderr, "Error: -prec=%s is not an int. in file: %s, on line: %d.\n", prec_str, __FILE__ ,__LINE__);
                     exit(1);
                 }
                 char* endptr;
@@ -230,20 +182,74 @@ int main(int argc, char *argv[])  {
     if (!commandFlag) {
         fprintf (stderr, "Error: No command was passed\n");
         exit(1);
+    }    
+    
+    /* ----- Dynamically allocate the contents of stdin to a 2d array ----- */
+    char input[MAX_CHAR];
+    char delimiter[] = " \n";
+    double **arr = (double **)malloc(1 * sizeof(double *));
+    int *sizes = (int *)malloc(1 * sizeof(int));
+    double *innerArr;
+
+    int firstRowIteration = 1;
+    int row = 0;
+    while (fgets(input, sizeof(input), stdin) != NULL) {
+        if (strcmp(input, "\n") == 0) {continue;}
+        innerArr = (double *)malloc(max_array_size * sizeof(double));
+        if (innerArr == NULL) {
+            printf("Failed to allocate memory for the array.\n");
+            return 1;
+        }
+
+        int col = 0;
+        double scanned;
+        char* token = strtok(input, delimiter);
+        while (token != NULL) {
+            if (col == max_array_size) {
+                arr[row] = innerArr;
+                sizes[row] = col;  
+                if (firstRowIteration) {
+                    max_array_size = sizes[row];
+                    firstRowIteration = 0;
+                }
+                row++;
+                sizes = (int *)realloc(sizes, (row + 1) * sizeof(int));
+                arr = (double **)realloc(arr, (row + 1) * sizeof(double *));
+                col = 0;
+                innerArr = (double *)malloc(max_array_size * sizeof(double));
+                if (innerArr == NULL) {
+                    printf("Failed to allocate memory for the array.\n");
+                    return 1;
+                }
+            }
+            sscanf(token, "%lf", &scanned);
+            innerArr[col] = scanned;
+            col++;
+
+            token = strtok(NULL, delimiter);
+        }
+
+        innerArr = (double *)realloc(innerArr, (col) * sizeof(double));
+        if (innerArr == NULL) {
+            printf("Failed to reallocate memory for the array.\n");
+            return 1;
+        }
+        arr[row] = innerArr;
+        sizes[row] = col;  
+        if (firstRowIteration) {
+            max_array_size = sizes[row];
+            firstRowIteration = 0;
+        }
+        row++;
+        sizes = (int *)realloc(sizes, (row + 1) * sizeof(int));
+        arr = (double **)realloc(arr, (row + 1) * sizeof(double *));
     }
 
     /* ----- Run the command ----- */
 
-    // for (int i=0; i < row; i++) {
-    //     for (int j=0; j < sizes[i]; j++) {
-    //         printf("%.1f ", arr[i][j]);
-    //     }
-    //     printf("\n");
-    // }
-
     if (aggregateCommandFlag) {
         for (int i=0; i < row; i++) {
-            printf("%*.*f ", output_size, output_prec, aggregate(finalCommand, arr[i], sizes[i]));
+            formatedDoublePrint(aggregate(finalCommand, arr[i], sizes[i]), output_prec);
         }
         printf("\n");
     } else if (strcmp(finalCommand, "PRINT") == 0) {
@@ -252,11 +258,18 @@ int main(int argc, char *argv[])  {
         }
     } else if (strcmp(finalCommand, "FILTER") == 0) {
         for (int i=0; i < row; i++) {
-            filter(arr[i], sizes[i], t, threshold);
+            sizes[i] = filter(arr[i], sizes[i], t, threshold);
+            if (sizes[i] == 0) {
+                arr[i] = NULL;
+            } else {
+                arr[i] = (double *)realloc(arr[i], sizes[i] * sizeof(double));
+            }
+            print(arr[i], sizes[i]);
         }
     } else if (strcmp(finalCommand, "SHIFT") == 0) {
         for (int i=0; i < row; i++) {
             shift(arr[i], sizes[i], shiftValue);
+            print(arr[i], sizes[i]);
         }
     }
 
