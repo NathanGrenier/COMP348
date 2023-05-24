@@ -217,10 +217,6 @@ int main(int argc, char *argv[])  {
                 arr = (double **)realloc(arr, (row + 1) * sizeof(double *));
                 col = 0;
                 innerArr = (double *)malloc(max_array_size * sizeof(double));
-                if (innerArr == NULL) {
-                    printf("Failed to allocate memory for the array.\n");
-                    return 1;
-                }
             }
             sscanf(token, "%lf", &scanned);
             innerArr[col] = scanned;
@@ -228,17 +224,14 @@ int main(int argc, char *argv[])  {
 
             token = strtok(NULL, delimiter);
         }
-
         innerArr = (double *)realloc(innerArr, (col) * sizeof(double));
-        if (innerArr == NULL) {
-            printf("Failed to reallocate memory for the array.\n");
-            return 1;
-        }
         arr[row] = innerArr;
         sizes[row] = col;  
         if (firstRowIteration) {
-            max_array_size = sizes[row];
-            firstRowIteration = 0;
+            if (sizes[row] > 0) {
+                max_array_size = sizes[row];
+                firstRowIteration = 0;
+            }
         }
         row++;
         sizes = (int *)realloc(sizes, (row + 1) * sizeof(int));
@@ -249,6 +242,7 @@ int main(int argc, char *argv[])  {
 
     if (aggregateCommandFlag) {
         for (int i=0; i < row; i++) {
+            if (arr[i] == NULL || sizes[i] == 0) {continue;}    // Skip arrays that are empty or null
             formatedDoublePrint(aggregate(finalCommand, arr[i], sizes[i]), output_prec);
         }
         printf("\n");

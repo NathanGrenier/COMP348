@@ -10,7 +10,7 @@ static double _count(double* arr, int size) {
 }
 
 static double _min(double* arr, int size) {
-    // if (size == 0 || arr == NULL) {return;}
+    // if (size == 0 || arr == NULL) {return;} 
     double min = arr[0];
     for (int i=1; i < size; i++) {
         if (arr[i] < min) {

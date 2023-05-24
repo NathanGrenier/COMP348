@@ -15,7 +15,7 @@ void formatedDoublePrint(double num, int prec) {
 }
 
 void print(double a[], size_t size) {
-    //if (size == 0 || a == NULL) {return;}
+    if (size == 0 || a == NULL) {return;}
     for (int i=0; i < size; i++) {
         formatedDoublePrint(a[i], output_prec);
     }
