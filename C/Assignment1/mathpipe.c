@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <limits.h>
 #include <unistd.h>
+#include <stdarg.h>
 #include "aggregate.h"
 #include "singular.h"
 #define MAX_COL 256
@@ -68,13 +69,21 @@ void strToUpper(char* str) {
     }
 }
 
+void printErrorMsg(FILE *stream, char * format, ...) {
+    va_list args;
+
+    va_start(args, format);
+    vfprintf(stream, format, args);
+    va_end(args);
+    exit(1);
+}
+
 int main(int argc, char *argv[])  {
     /* ----- Parse the command line arguments ----- */
 
     // Check to see if anything was piped into the programs stdin. 1 means terminal, 0 is piped
     if (isatty(fileno(stdin)) == 1) {
-        fprintf (stderr, "Error: Nothing was piped into the program as input. in file: %s, on line: %d.\n", __FILE__, __LINE__);
-        exit(1);
+        printErrorMsg(stderr, "Error: Nothing was piped into the program as input. in file: %s, on line: %d.\n", __FILE__, __LINE__);
     }
 
     //const enum commands {COUNT, MIN, MAX, SUM, AVG, PAVG, PRINT, FILTER, SHIFT} command;
