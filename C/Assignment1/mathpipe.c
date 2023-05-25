@@ -71,7 +71,7 @@ void strToUpper(char* str) {
 int main(int argc, char *argv[])  {
     /* ----- Parse the command line arguments ----- */
 
-    // Check to see if anything was piped into the programs stdin
+    // Check to see if anything was piped into the programs stdin. 1 means terminal, 0 is piped
     if (isatty(fileno(stdin)) == 1) {
         fprintf (stderr, "Error: Nothing was piped into the program as input. in file: %s, on line: %d.\n", __FILE__, __LINE__);
         exit(1);
