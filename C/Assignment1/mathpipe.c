@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <limits.h>
+#include <unistd.h>
 #include "aggregate.h"
 #include "singular.h"
 #define MAX_COL 256
@@ -69,6 +70,12 @@ void strToUpper(char* str) {
 
 int main(int argc, char *argv[])  {
     /* ----- Parse the command line arguments ----- */
+
+    // Check to see if anything was piped into the programs stdin
+    if (isatty(fileno(stdin)) == 1) {
+        fprintf (stderr, "Error: Nothing was piped into the program as input. in file: %s, on line: %d.\n", __FILE__, __LINE__);
+        exit(1);
+    }
 
     //const enum commands {COUNT, MIN, MAX, SUM, AVG, PAVG, PRINT, FILTER, SHIFT} command;
     const char *validAggregateCommands[] = {"COUNT", "MIN", "MAX", "SUM", "AVG", "PAVG"};

@@ -6,7 +6,7 @@
 #define LENGTH(x) (sizeof(x)/sizeof(x[0]))
 
 static double _count(double* arr, int size) {
-    return (double)size;
+    return size;
 }
 
 static double _min(double* arr, int size) {
