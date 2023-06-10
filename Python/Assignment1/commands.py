@@ -3,6 +3,7 @@ import shapes
 from shapedb import error, linenum
 import os
 import sys
+import re
 
 objects = []
 classes = []
@@ -22,9 +23,16 @@ def initShapeDetails():
     details["Error"] = 0
 
 
+def isNumeric(value):
+    if isinstance(value, int) or isinstance(value, float):
+        return True
+    elif isinstance(value, str) and bool(re.search(r'-?\d+', value)):
+        return True
+    return False
+
 def checkErroneous(arr):
-    for e in arr:
-        if e <= 0:
+    for value in arr:
+        if not isNumeric(value) or float(value) <= 0:
             return True
     return False 
 
@@ -41,13 +49,13 @@ def load(filename):
             line = line.rstrip()
             vars = line.split(" ")
             rows += 1
-            for i, e in enumerate(vars[1:], 1):
-                vars[i] = int(e)
             if (checkErroneous(vars[1:])):
                 print(f"Error: Invalid {vars[0]} in file {filename} on line {rows}: {' '.join(str(x) for x in vars)}")
                 details["Error"] += 1
                 errCount += 1
                 continue
+            for i, value in enumerate(vars[1:], 1):
+                vars[i] = int(value)
             for c in classes:
                 if (vars[0].lower() == c.__name__.lower()):
                     try:
