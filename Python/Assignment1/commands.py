@@ -20,7 +20,6 @@ def getShapeClasses():
 def initShapeDetails():
     global details
     details = {c.__name__:0 for c in classes}
-    details["Error"] = 0
 
 
 def isNumeric(value):
@@ -35,6 +34,16 @@ def checkErroneous(arr):
         if not isNumeric(value) or float(value) <= 0:
             return True
     return False 
+
+def updateShapeSummary():
+    for cls in details.keys():
+        if cls == "Error": continue
+        details[cls] = 0
+    for shape in objects:
+        details[shape.__class__.__name__] += 1
+        if shape.__class__.__name__ != "Shape":
+            details["Shape"] += 1
+            
 
 def load(filename):
     if (not os.path.exists(filename)):
@@ -51,7 +60,6 @@ def load(filename):
             rows += 1
             if (checkErroneous(vars[1:])):
                 print(f"Error: Invalid {vars[0]} in file {filename} on line {rows}: {' '.join(str(x) for x in vars)}")
-                details["Error"] += 1
                 errCount += 1
                 continue
             for i, value in enumerate(vars[1:], 1):
@@ -60,14 +68,11 @@ def load(filename):
                 if (vars[0].lower() == c.__name__.lower()):
                     try:
                         objects.append(c(*vars[1:]))
-                        details[c.__name__] += 1
                         shapeCount += 1
-                        if (c.__name__ != "Shape"):
-                            details["Shape"] += 1
                     except TypeError:
                         print(f"Error: Invalid args {vars[1:]} for class {c.__name__}. Expected: {len(inspect.signature(c.__init__).parameters)-1} arguments.")
-                        details["Error"] += 1
                         errCount += 1
+    updateShapeSummary()
     print(f"Processed {rows} row(s), {shapeCount} shape(s) added, {errCount} error(s)")
         
 def save(output):
@@ -123,5 +128,6 @@ def toSet():
             print(f"Removed: {obj}")
     objects = list(shapeSet)
     objects.sort(key=lambda obj: obj.id)
+    updateShapeSummary()
 
             
