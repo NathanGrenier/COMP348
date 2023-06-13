@@ -1,17 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+
+char* testFunc(char* str) {
+    str[0] = 'E';
+    return str;
+}
 
 int main() {
-    int size = 5;
+    
+    char *str = "This is a string";
+    char str1[] = "Another String";
 
-    double* values = (double*)malloc(size * sizeof(double));
-    if (values == NULL) {
-        printf("Failed to allocate memory for the array.\n");
-        return 1;
-    }
-    printf("%ld\n", sizeof(&values));
-    printf("%ld\n", sizeof(values[0]));
-    printf("Length=%ld\n", (sizeof(values)/sizeof(values[0])));
+    printf("%s\n", testFunc(str1));
 
     return 0;
 }

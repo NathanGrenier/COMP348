@@ -1,5 +1,7 @@
 import sys
 import otherFile
 
-if __name__ == "__main__":
-    pass
+a = 10
+b = 2
+str = f'{a:+}i{b:+}j'
+print(str)

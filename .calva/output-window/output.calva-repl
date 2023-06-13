@@ -1,0 +1,6 @@
+; Jacking in...
+; Connecting using "Babashka" project type.
+; You can make Calva auto-select this.
+;   - See https://calva.io/connect-sequences/
+; 
+; Starting Jack-in Terminal: pushd /mnt/c/Users/natha/Concordia/COMP348 ; bb --nrepl-server 36995 ; popd
