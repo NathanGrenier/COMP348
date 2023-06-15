@@ -1,8 +1,7 @@
-
-asdf
-
 ellipse 2 4
+ccircle 2 4
 shape
 rhombus 20 20 20
 ellipse 2 -4
+ellipse 2 0
 circle asdf

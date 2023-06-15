@@ -2,9 +2,11 @@ import math
 
 class Shape(object):
     _id = 1
+    instances = []
     def __init__(self):
         self._id = Shape._id
         Shape._id += 1
+        Shape.instances.append(self)
 
     @property
     def id(self):
@@ -15,6 +17,11 @@ class Shape(object):
     
     def area(self):
         return None
+    
+    @staticmethod
+    def clear():
+        Shape._id = 1
+        Shape.instances = []
 
     def __str__(self):
         str = f"{self._id}: {type(self).__name__}"
@@ -96,7 +103,7 @@ class Rhombus(Shape):
         return 2 * math.sqrt(math.pow(self.p, 2) + math.pow(self.q, 2))
     
     def area(self):
-        return self.p * self.q
+        return (self.p * self.q) / 2
     
     def side(self):
         return math.sqrt(math.pow(self.p, 2) + math.pow(self.q, 2)) / 2
