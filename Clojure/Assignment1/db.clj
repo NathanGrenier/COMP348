@@ -1,6 +1,7 @@
 (ns db
   (:require [clojure.string :as str])
-  (:require [clojure.pprint :refer [pprint]]))
+  (:require [clojure.pprint :refer [pprint]])
+  (:require [clojure.java.io]))
 
 (def letterGrades {
 "A+" 4.3, "A" 4, "A-" 3.7,
@@ -17,7 +18,12 @@
 
 (defn loadData 
   [filename]
-  (mapv #(str/split % #"\|") (str/split-lines (slurp filename))) 
+  (if (.exists (clojure.java.io/file filename))
+    (mapv #(str/split % #"\|") (str/split-lines (slurp filename)))
+    (do
+      (println (str "ERROR: File <" filename "> could not be found.\nNOTE: Files in this assignment are hardcoded. You should define these files in the same directory as the app.clj file: [studs.txt, grades.txt, courses.txt]"))
+      (System/exit 0)) 
+    ) 
   )
 
 ; Find out how to sort by course name and number
