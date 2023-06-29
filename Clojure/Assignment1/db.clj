@@ -26,9 +26,9 @@
     ) 
   )
 
-; Find out how to sort by course name and number
 (defn displayStudentRecords
   [studDB gradeDB courseDB]
+  (def mutableList (atom (list)))
   (let [id (do
              (print "Enter an id: ")
              (flush)
@@ -38,11 +38,11 @@
     (pprint student)
     (doseq [grade grades]
       (let [courseID (nth grade 1)
-            course (nth (filter #(= (nth % 0) courseID) courseDB) 0)
-            details (into [] (concat (map #(nth course %) [1 2 4]) (map #(nth grade %) [2 3])))]
-        (pprint details)
+            course (nth (filter #(= (nth % 0) courseID) courseDB) 0)]
+        (swap! mutableList conj (into [] (concat (conj (map #(nth course %) [4]) (apply str (interpose " " (map #(nth course %) [1 2])))) (map #(nth grade %) [2 3]))))
         )
-      )
+      ) 
+    (dorun (map pprint (reverse (sort-by #(nth % 0) @mutableList))))
     )
   )
 
@@ -61,7 +61,6 @@
         grades (map #(get letterGrades %) (map #(nth % 3) (filter #(= (nth % 0) studentID) gradeDB))) 
         courseMap (collToMap courseDB) 
         courseWeights (map #(read-string (nth % 2)) (map #(get courseMap %) (map #(nth % 1) (filter #(= (nth % 0) studentID) gradeDB))))]
-        ;courseMap (map #(zipmap [:courseID :courseName :courseNumber :weight :desc] %) courseDB)
     (pprint (str "GPA=" (weightedAVG grades courseWeights)))
     )
   )
@@ -71,14 +70,23 @@
   (/ (reduce + coll) (count coll))
   )
 
-; I don't know what to do with the course semester. They're all the same
 (defn courseAVG
-  [gradeDB courseDB]
-  (doseq [course courseDB]
-    (let [courseID (nth course 0)
+  [gradeDB courseDB] 
+  (def semesterGrades (atom (hash-map)))
+  (doseq [grade gradeDB]
+    (let [semester (nth grade 2)
+          courseID (nth grade 1)
           course (nth (filter #(= (nth % 0) courseID) courseDB) 0)
-          grades (map #(get letterGrades %) (map #(nth % 3) (filter #(= (nth % 1) courseID) gradeDB)))]
-      (pprint (into [] (concat (map #(nth course %) [1 2]) (vector (avg grades)))))
+          key (keyword (apply str (interpose " " (conj (conj `() semester) (apply str (interpose " " (map #(nth course %) [1 2]))))))) 
+          score (get letterGrades (nth grade 3))
+          ]
+      (swap! semesterGrades update key #(if % (conj % score) (into [] [score])))
       )
   )
+  (doseq [key (keys @semesterGrades)]
+    (let [value (get @semesterGrades key)
+          courseAverage (conj (into [] (conj `() (name key))) (avg value))]
+      (pprint courseAverage)
+      ) 
+    )
 )
